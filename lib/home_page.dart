@@ -134,8 +134,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 } else if (snapshot.hasData) {
                   var items = snapshot.data as List<JsonDetails>;
-
-                  // Apply filters
                   items = items.where((item) {
                     bool isAvailable = item.available == true && showAvailable;
                     bool isNotAvailable = item.available == false && showNotAvailable;
@@ -144,8 +142,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     return isAvailable || isNotAvailable || isMale || isFemale;
                   }).toList();
-
-                  // Apply search filter
                   if (searchController.text.isNotEmpty) {
                     items = items.where((item) =>
                         item.first_name.toString().toLowerCase().contains(searchController.text.toLowerCase()))
@@ -168,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       );
                     },
-                    itemCount: items.length,
+                    itemCount: 10,
                   );
                 } else {
                   return const Center(child: CircularProgressIndicator());
