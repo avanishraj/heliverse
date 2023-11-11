@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as rootBundle;
 import 'package:heliverse/jsonDetails/jsonDetails.dart';
+import 'package:heliverse/select_team.dart';
+import 'package:heliverse/team_list.dart';
 import 'filter_dialog.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -16,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<JsonDetails>? allUsers;
   TextEditingController searchController = TextEditingController();
   String? search = "";
+  List<JsonDetails> selectedTeamMembers = [];
 
   bool showAvailable = true;
   bool showNotAvailable = true;
@@ -24,29 +27,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    void _showFilterDialog() {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return FilterDialog(
-            onFilterChanged: (bool available, bool notAvailable, bool male, bool female) {
-              setState(() {
-                showAvailable = available;
-                showNotAvailable = notAvailable;
-                showMale = male;
-                showFemale = female;
-              });
-            },
-          );
-        },
-      );
-    }
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {
-          _showFilterDialog();
+        onPressed: () async {
+          final items = await readJsonData();
+          // ignore: use_build_context_synchronously
+          final selectedMembers = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SelectTeamMembersPage(allUsers: items),
+            ),
+          );
+
+          if (selectedMembers != null) {
+            setState(() {
+              selectedTeamMembers = List.from(selectedMembers);
+            });
+          }
         },
       ),
       appBar: AppBar(
@@ -56,6 +54,21 @@ class _MyHomePageState extends State<MyHomePage> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        actions: [
+          // Add a button to navigate to the Team List Page
+          IconButton(
+            icon: Icon(Icons.group),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      TeamListPage(teamMembers: selectedTeamMembers),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -136,15 +149,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   var items = snapshot.data as List<JsonDetails>;
                   items = items.where((item) {
                     bool isAvailable = item.available == true && showAvailable;
-                    bool isNotAvailable = item.available == false && showNotAvailable;
+                    bool isNotAvailable =
+                        item.available == false && showNotAvailable;
                     bool isMale = item.gender == "Male" && showMale;
                     bool isFemale = item.gender == "Female" && showFemale;
 
                     return isAvailable || isNotAvailable || isMale || isFemale;
                   }).toList();
                   if (searchController.text.isNotEmpty) {
-                    items = items.where((item) =>
-                        item.first_name.toString().toLowerCase().contains(searchController.text.toLowerCase()))
+                    items = items
+                        .where((item) => item.first_name
+                            .toString()
+                            .toLowerCase()
+                            .contains(searchController.text.toLowerCase()))
                         .toList();
                   }
 
@@ -161,6 +178,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           subtitle: items[index].available == true
                               ? const Text("Available")
                               : const Text("Not Available"),
+                          onTap: () {
+                            setState(() {
+                              if (selectedTeamMembers.contains(items[index])) {
+                                selectedTeamMembers.remove(items[index]);
+                              } else {
+                                selectedTeamMembers.add(items[index]);
+                              }
+                            });
+                          },
                         ),
                       );
                     },
@@ -184,8 +210,3 @@ class _MyHomePageState extends State<MyHomePage> {
     return list.map((e) => JsonDetails.fromJson(e)).toList();
   }
 }
-
-
-
-
-

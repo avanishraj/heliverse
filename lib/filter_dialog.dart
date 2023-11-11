@@ -63,15 +63,14 @@ class _FilterDialogState extends State<FilterDialog> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop(); // Close the dialog
+            Navigator.of(context).pop();
           },
           child: Text("Close"),
         ),
         TextButton(
           onPressed: () {
-            // Pass the selected filter options back to the parent widget
             widget.onFilterChanged(showAvailable, showNotAvailable, showMale, showFemale);
-            Navigator.of(context).pop(); // Close the dialog
+            Navigator.of(context).pop();
           },
           child: Text("Submit"),
         ),

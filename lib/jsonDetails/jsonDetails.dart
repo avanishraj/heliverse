@@ -10,9 +10,10 @@ class JsonDetails {
   String? avatar;
   String? domain;
   bool? available;
+  bool? isSelected;
 
   JsonDetails({
-    this.id, this.first_name, this.last_name, this.email, this.gender, this.avatar, this.domain, this.available
+    this.id, this.first_name, this.last_name, this.email, this.gender, this.avatar, this.domain, this.available, this.isSelected
   });
 
   JsonDetails.fromJson(Map<String, dynamic> json){
@@ -23,6 +24,7 @@ class JsonDetails {
     gender = json['gender'];
     avatar = json['avatar'];
     domain = json['domain'];
-    available = json['available'];    
+    available = json['available'];
+    isSelected = false;    
   }
 }
